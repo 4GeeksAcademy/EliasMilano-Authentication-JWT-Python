@@ -41,7 +41,7 @@ def signup():
     new_user = User(name, email, password)
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({"messsage": "User created successfully"}), 201
+    return jsonify({"messsage": "User created successfully"}), 200
      
 
 @api.route('/login', methods=['POST'])
@@ -50,15 +50,18 @@ def login():
     email = body.get("email", None)
     password = body.get("password", None)
 
-    user = User.query.filter_by(email=email).one_or_none()
-    if user == None:
-        return jsonify({"msg":"Bad email or password"}), 401
+    if email != "test" or password != "test":
+        return jsonify({"msg": "Bad username or password"}), 401
+
+    # user = User.query.filter_by(email=email).one_or_none()
+    # if user == None:
+    #     return jsonify({"msg":"Bad email or password"}), 401
     
-    if user.password != password:
-        return jsonify({"msg":"Bad email or password"}), 401
+    # if user.password != password:
+    #     return jsonify({"msg":"Bad email or password"}), 401
 
     access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token), 201
+    return jsonify(access_token=access_token)
 
 
 @api.route("/protected", methods=["GET"])
