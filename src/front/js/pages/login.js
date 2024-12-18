@@ -7,66 +7,71 @@ export const Login = () => {
     const { store, actions } = useContext(Context);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const token = sessionStorage.getItem("token");
-    console.log("This is your token", token);
+    const [error, setError] = useState("");
 
-    const handleClick = () => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        const opts = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        };
-        fetch('https://super-duper-system-jwr6pxqxx7pcj7p5-3001.app.github.dev/api/login', opts)
-            .then(resp => {
-                if (resp.status === 200) return resp.json();
-                else alert("There has been some error");
-            })
-            .then(data => {
-                console.log("this came from the backend", data);
-                sessionStorage.setItem("token", data.access_token);
-            })
-            .catch(error => {
-                console.error("There was an error", error);
+
+        try {
+            const response = await fetch(`${process.env.BACKEND_URL}api/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
             });
-    }
+
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.msg || "Error al iniciar sesión");
+                return;
+            }
+
+            const data = await response.json();
+            localStorage.setItem("token", data.access_token); 
+            window.location.href = "/private"; 
+        } catch (error) {
+            setError("Error inesperado al iniciar sesión");
+        }
+    };
 
     return (
-        <div className="d-flex justify-content-center">
-            <div className="col-6">
-                <main className="form-signin w-100 m-auto mt-5" >
-                    <h1 className="h3 mb-3 fw-normal">Login</h1>
+        <div className="container">
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            <main className="form-signin w-100 m-auto">
+            <form onSubmit={handleSubmit}>
+                <h1 className="h3 mb-3 fw-normal">Please sign in</h1>
 
-                    {(token && token!="" && token!=undefined) ? "You are logged in with this token " + token : (
-                        <form>
-                            <div className="form-floating mt-2">
-                                <input type="text" className="form-control" id="floatingInput" placeholder="name@example.com"
-                                    value={email}
-                                    onChange={(event) => setEmail(event.target.value)}
-                                />
-                                <label htmlFor="floatingInput">Email address</label>
-                            </div>
-                            <div className="form-floating mt-2">
-                                <input type="password" className="form-control" id="floatingPassword" placeholder="Password"
-                                    value={password}
-                                    onChange={(event) => setPassword(event.target.value)}
-                                />
-                                <label htmlFor="floatingPassword">Password</label>
-                            </div>
+                <div className="form-floating">
+                <input
+                        id="email"
+                        placeholder="Email"
+                        className="form-control"
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        required
+                    />
+                <label htmlFor="email" className="form-label">Email</label>
+                </div> 
+                <div className="form-floating">
+                <input
+                        id="password"
+                        placeholder="Password"
+                        className="form-control"
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        required
+                    />
+                <label htmlFor="password" className="form-label">Password</label>
+                </div>
 
-                            <button className="btn btn-primary w-100 py-2 mt-2" type="submit"
-                                onClick={handleClick}
-                            >Login</button>
-                        </form>
-                    )}
-                </main >
-            </div>
+                <button className="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+                <div className="mt-3">
+                        <Link to="/signup">Don't have an account? Sign up</Link>
+                    </div>
+            </form>
+            </main>
         </div>
-    )
-}
-
+)}

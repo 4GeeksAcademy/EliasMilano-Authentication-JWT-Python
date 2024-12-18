@@ -50,18 +50,15 @@ def login():
     email = body.get("email", None)
     password = body.get("password", None)
 
-    if email != "test" or password != "test":
-        return jsonify({"msg": "Bad username or password"}), 401
-
-    # user = User.query.filter_by(email=email).one_or_none()
-    # if user == None:
-    #     return jsonify({"msg":"Bad email or password"}), 401
+    user = User.query.filter_by(email=email).first()
+    if user == None:
+        return jsonify({"msg":"Bad email or password"}), 401
     
-    # if user.password != password:
-    #     return jsonify({"msg":"Bad email or password"}), 401
+    if user.password != password:
+        return jsonify({"msg":"Bad email or password"}), 401
 
     access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token)
+    return jsonify(access_token=access_token), 201
 
 
 @api.route("/protected", methods=["GET"])

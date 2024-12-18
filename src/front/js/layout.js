@@ -10,9 +10,9 @@ import { Sign } from "./pages/sign";
 import { Login } from "./pages/login";
 import injectContext from "./store/appContext";
 
-
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
+import ProtectedRoute from "./component/protectedRoute";
 
 //create your first component
 const Layout = () => {
@@ -28,7 +28,8 @@ const Layout = () => {
                 <ScrollToTop>
                     <Navbar />
                     <Routes>
-                        <Route element={<Home />} path="/" />
+                        <Route element={<ProtectedRoute><Home /></ProtectedRoute>} path="/" />
+                        <Route element={<ProtectedRoute><Private /></ProtectedRoute>} path="/private" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
                         <Route element={<Sign />} path="/sign" />
